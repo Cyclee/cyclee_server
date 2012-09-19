@@ -1,0 +1,5 @@
+*~
+*.pyc
+*.sqlite
+/cyclee_server.egg-info/
+/setup.cfg
