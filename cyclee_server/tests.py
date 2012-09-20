@@ -3,30 +3,32 @@ import transaction
 
 from pyramid import testing
 
-from .models import DBSession
+from .models import DBSession, Base
 
-class TestMyView(unittest.TestCase):
+
+class TestRESTTrace(unittest.TestCase):
+
     def setUp(self):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
-        engine = create_engine('sqlite://')
-        from .models import (
-            Base,
-            MyModel,
-            )
+        engine = create_engine('postgresql://postgres:@localhost/cyclee_test')
         DBSession.configure(bind=engine)
         Base.metadata.create_all(engine)
-        with transaction.manager:
-            model = MyModel(name='one', value=55)
-            DBSession.add(model)
 
     def tearDown(self):
         DBSession.remove()
         testing.tearDown()
 
-    def test_it(self):
-        from .views import my_view
+    def test_get(self):
+        from .views import RESTTrace
         request = testing.DummyRequest()
-        info = my_view(request)
-        self.assertEqual(info['one'].name, 'one')
-        self.assertEqual(info['project'], 'cyclee_server')
+        rest = RESTTrace(request)
+        resp = rest.get()
+        print resp
+
+    def test_post(self):
+        from .views import RESTTrace
+        request = testing.DummyRequest()
+        rest = RESTTrace(request)
+        resp = rest.post()
+        print resp
