@@ -1,7 +1,8 @@
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
-from .models import DBSession
+from cyclee_server.models import DBSession
+from cyclee_server.views import RESTTrace
 
 
 def main(global_config, **settings):
@@ -14,6 +15,12 @@ def main(global_config, **settings):
     config.add_route('home', '/')
 
     config.add_route('rest-traces', '/traces')
+
+    config.add_route('rest-trace', '/traces/{id}')
+
+    config.add_view(RESTTrace, attr='get', request_method='GET')
+    config.add_view(RESTTrace, attr='post', request_method='POST')
+    config.add_view(RESTTrace, attr='delete', request_method='DELETE')
 
     config.scan()
     return config.make_wsgi_app()
