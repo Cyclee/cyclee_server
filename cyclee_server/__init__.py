@@ -49,9 +49,19 @@ def main(global_config, **settings):
 
     config.add_route('rest-trace', '/traces/{id}')
 
-    config.add_view(RESTTrace, attr='get', request_method='GET')
-    config.add_view(RESTTrace, attr='post', request_method='POST')
-    config.add_view(RESTTrace, attr='delete', request_method='DELETE')
+    config.add_view(RESTTrace,
+                    attr='get',
+                    renderer='json',
+                    request_method='GET')
+    config.add_view(RESTTrace,
+                    attr='post',
+                    renderer='json',
+                    request_method='POST')
+
+    config.add_view(RESTTrace,
+                    attr='delete',
+                    renderer='json',
+                    request_method='DELETE')
 
     config.add_route('rides', '/rides')
 

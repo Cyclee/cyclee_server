@@ -1,6 +1,8 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.view import view_defaults
+from pyramid.httpexceptions import HTTPNotFound
+
 import colander
 
 from cyclee_server.models import (
@@ -54,9 +56,14 @@ def add_trace(request):
 
 class REST(object):
 
+    resource = None
+
     def get_resource(self):
-        return self.session(
+        resource = self.session.query(
             self.resource).get(self.request.matchdict['id'])
+        if resource is None:
+            raise HTTPNotFound()
+        return resource
 
     def __init__(self, request):
         self.request = request
@@ -64,16 +71,19 @@ class REST(object):
 
 
 @view_defaults(route_name='rest-trace')
-class RESTTrace(object):
+class RESTTrace(REST):
     """A class that provides a restful interface to the trace object
        See Trace object for more details
     """
+    resource = Trace
 
     def __init__(self, request):
         self.request = request
+        self.session = DBSession()
+        super(RESTTrace, self)
 
     def get(self):
-        return Response()
+        return self.get_resource()
 
     def post(self):
         return Response()
