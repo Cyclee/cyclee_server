@@ -17,6 +17,8 @@ requires = [
     'logbook',
     'pyyaml',
     'WTForms',
+    'pyyaml',
+    'zope.dottedname',
     'colander',
     'shapely',
     'psycopg2',
@@ -46,5 +48,7 @@ setup(name='cyclee_server',
       [paste.app_factory]
       main = cyclee_server:main
       [console_scripts]
+      load-fixtures = cyclee_server.scripts:fixture_command
+      clear-db = cyclee_server.scripts:clear_command
       """,
       )
