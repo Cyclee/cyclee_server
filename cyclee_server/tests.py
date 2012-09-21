@@ -28,6 +28,7 @@ class TestBase(unittest.TestCase):
 
     def tearDown(self):
         DBSession.remove()
+        Base.metadata.clear()
         testing.tearDown()
 
 mock_ride = {

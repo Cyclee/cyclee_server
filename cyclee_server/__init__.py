@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config
 from geoalchemy.postgis import PGPersistentSpatialElement
 
 from cyclee_server.models import DBSession, Base
-from cyclee_server.views import RESTTrace
+from cyclee_server.views import RESTTrace, RESTRide
 
 
 # FIX ME, find a better place for the adapter's for the JSON renderer
@@ -64,6 +64,21 @@ def main(global_config, **settings):
                     request_method='DELETE')
 
     config.add_route('rides', '/rides')
+    config.add_route('rest-rides', '/rides/{id}')
+
+    config.add_view(RESTRide,
+                    attr='get',
+                    renderer='json',
+                    request_method='GET')
+    config.add_view(RESTRide,
+                    attr='post',
+                    renderer='json',
+                    request_method='POST')
+
+    config.add_view(RESTRide,
+                    attr='delete',
+                    renderer='json',
+                    request_method='DELETE')
 
     config.scan()
     return config.make_wsgi_app()
