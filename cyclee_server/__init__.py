@@ -2,7 +2,7 @@ import datetime
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
-from cyclee_server.models import DBSession
+from cyclee_server.models import DBSession, Base
 from cyclee_server.views import RESTTrace
 
 from pyramid.renderers import JSON
