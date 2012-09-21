@@ -7,7 +7,7 @@ from cyclee_server.models import (
     DBSession, Trace, Ride
 )
 
-# from cyclee_server.schemes import TraceSchema
+from cyclee_server.schemes import TraceSchema
 
 
 @view_config(route_name='home', renderer='index.mako')
@@ -23,17 +23,33 @@ def show_traces(request):
     return [trace for trace in session.query(Trace).all()]
 
 
-@view_config(route_name='traces', request_method='POST')
-def add_trace(request):
-    return {}
-
-
 @view_config(route_name='rides',
              renderer='json',
              request_method='GET')
 def show_rides(request):
     session = DBSession()
     return [ride for ride in session.query(Ride).all()]
+
+
+def add_resource(request, model, schema_cls):
+    session = DBSession()
+    try:
+        schema = schema_cls()
+        vals = schema.deserialize(request.json_body)
+        ints = model(**vals)
+        session.add(ints)
+        session.flush()
+        return ints
+    except colander.Invalid, e:
+        request.response.status = 'Bad request 400'
+        return e.asdict()
+
+
+@view_config(route_name='traces',
+             renderer='json',
+             request_method='POST')
+def add_trace(request):
+    return add_resource(request, Trace, TraceSchema)
 
 
 class REST(object):

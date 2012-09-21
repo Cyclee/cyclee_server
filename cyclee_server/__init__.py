@@ -1,11 +1,13 @@
 import datetime
+import json
 from pyramid.config import Configurator
+from pyramid.renderers import JSON
 from sqlalchemy import engine_from_config
+from geoalchemy.postgis import PGPersistentSpatialElement
 
 from cyclee_server.models import DBSession, Base
 from cyclee_server.views import RESTTrace
 
-from pyramid.renderers import JSON
 
 # FIX ME, find a better place for the adapter's for the JSON renderer
 json_renderer = JSON()
@@ -15,6 +17,20 @@ def datetime_adapter(obj, request):
     return obj.isoformat()
 
 json_renderer.add_adapter(datetime.datetime, datetime_adapter)
+
+
+def pgelement_adapter(obj, request):
+    # In order to pass a geometry object to the pyramid json renderer
+    # we have to pull the geometry and generate a python dict
+    # Postgis's geojson function returns a string, so we have to pass
+    # that to json loads in order for the final output to be correct.
+
+    # FIXME, this method currently makes a query against the database
+    # for each geometry
+    s = DBSession()
+    return json.loads(s.scalar(obj.geojson))
+
+json_renderer.add_adapter(PGPersistentSpatialElement, pgelement_adapter)
 
 
 def main(global_config, **settings):

@@ -24,10 +24,9 @@ class TestBase(unittest.TestCase):
         DBSession.configure(bind=self.engine)
         Base.metadata.create_all(self.engine)
         load_database(self.engine)
-        load_fixtures('fixtures.yaml')
+        load_fixtures('fixtures.yml')
 
     def tearDown(self):
-        clear_database(self.engine)
         DBSession.remove()
         testing.tearDown()
 
@@ -38,7 +37,7 @@ mock_ride = {
 }
 
 mock_trace = {
-    'geometry': {'x': 42, 'y': -73},
+    'geometry': 'POINT(-88.5945861592357 42.9480095987261)',
     'altitude': 10,
     'ride_id': 1,
     'device_timestamp': '2007-01-25T12:00:00Z'
@@ -55,10 +54,19 @@ class TestAddGetTrace(TestBase):
 
     def test_adding_trace(self):
         from .views import add_trace
+        from .models import Trace
         request = testing.DummyRequest()
-        request.params = mock_trace
+        request.json_body = mock_trace
         resp = add_trace(request)
-        print resp
+        self.assertTrue(isinstance(resp, Trace))
+
+    def test_adding_bad_trace(self):
+        from .views import add_trace
+        request = testing.DummyRequest()
+        request.json_body = {'key': 'not right key'}
+        resp = add_trace(request)
+        self.assertTrue(isinstance(resp, dict))
+        self.assertTrue(len(resp.keys()), 4)
 
 
 class TestRESTTrace(TestBase):
