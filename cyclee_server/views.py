@@ -3,7 +3,11 @@ from pyramid.view import view_config
 from pyramid.view import view_defaults
 import colander
 
-from cyclee_server.schemas import TraceSchema
+from cyclee_server.models import (
+    DBSession, Trace, Ride
+)
+
+# from cyclee_server.schemes import TraceSchema
 
 
 @view_config(route_name='home', renderer='index.mako')
@@ -11,18 +15,36 @@ def index(request):
     return {}
 
 
-@view_config(route_name='rest-traces', request_method='GET')
+@view_config(route_name='traces',
+             renderer='json',
+             request_method='GET')
 def show_traces(request):
+    session = DBSession()
+    return [trace for trace in session.query(Trace).all()]
+
+
+@view_config(route_name='traces', request_method='POST')
+def add_trace(request):
     return {}
 
 
-@view_config(route_name='rest-traces', request_method='POST')
-def add_trace(request):
-    schema = TraceSchema()
-    try:
-        schema.deserialize(request.params)
-    except colander.Invalid, e:
-        return {'errors': e.asdict()}
+@view_config(route_name='rides',
+             renderer='json',
+             request_method='GET')
+def show_rides(request):
+    session = DBSession()
+    return [ride for ride in session.query(Ride).all()]
+
+
+class REST(object):
+
+    def get_resource(self):
+        return self.session(
+            self.resource).get(self.request.matchdict['id'])
+
+    def __init__(self, request):
+        self.request = request
+        self.session = DBSession()
 
 
 @view_defaults(route_name='rest-trace')
