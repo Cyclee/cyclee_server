@@ -1,0 +1,25 @@
+- class: cyclee_server.models.User
+  fields: 
+    name: Ivan Willig
+    email: iwillig@example.com
+    password: 21232f297a57a5a743894a0e4a801fc3
+    age: 27
+    gender: male
+
+- class: cyclee_server.models.Device
+  fields:
+    type: Phone
+    owner_id: 1
+
+- class: cyclee_server.models.Ride
+  fields:          
+     time_started: 2007-01-25T12:00:00Z
+     time_ended: 2007-01-25T12:00:00Z
+     owner_id: 1
+
+- class: cyclee_server.models.Trace
+  fields:
+    geometry: POINT(-88.5945861592357 42.9480095987261)
+    altitude: 100
+    ride_id: 1
+    device_timestamp: 2007-01-25T12:00:00Z
