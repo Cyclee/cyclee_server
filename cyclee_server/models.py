@@ -18,7 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
     scoped_session,
-    relationship,
+    #relationship,
     sessionmaker
 )
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -30,6 +30,12 @@ Base = declarative_base()
 class ResourceMixin(object):
     id = Column(Integer, primary_key=True)
     date_created = Column(DateTime, default=func.now())
+
+    def __json__(self, request):
+        d = {}
+        for c in self.__table__.columns:
+            d[c.name] = getattr(self, c.name)
+        return d
 
 
 class User(Base):
