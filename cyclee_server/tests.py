@@ -3,6 +3,12 @@ import unittest
 
 from pyramid import testing
 
+from cyclee_server.scripts import (
+    load_database,
+    clear_database,
+    load_fixtures
+)
+
 from .models import DBSession, Base
 
 
@@ -10,30 +16,42 @@ class TestBase(unittest.TestCase):
     def setUp(self):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
-        engine = create_engine('postgresql://postgres:@localhost/cyclee_test')
-        DBSession.configure(bind=engine)
-        Base.metadata.create_all(engine)
+
+        self.engine = create_engine(
+            'postgresql://postgres:@localhost/cyclee_test'
+        )
+
+        DBSession.configure(bind=self.engine)
+        Base.metadata.create_all(self.engine)
+        load_database(self.engine)
+        load_fixtures('fixtures.yaml')
 
     def tearDown(self):
+        clear_database(self.engine)
         DBSession.remove()
         testing.tearDown()
 
+mock_ride = {
+    'owner_id': 1,
+    'time_started': '2007-01-25T12:00:00Z',
+    'time_ended': '2007-01-25T12:00:00Z'
+}
 
 mock_trace = {
     'geometry': {'x': 42, 'y': -73},
     'altitude': 10,
-    'ride_1': 1,
-    'device_timestamp': 'Date'
+    'ride_id': 1,
+    'device_timestamp': '2007-01-25T12:00:00Z'
 }
 
 
-class TestAddTrace(TestBase):
+class TestAddGetTrace(TestBase):
 
     def setUp(self):
-        super(TestAddTrace, self).setUp()
+        super(TestAddGetTrace, self).setUp()
 
     def tearDown(self):
-        super(TestAddTrace, self).tearDown()
+        super(TestAddGetTrace, self).tearDown()
 
     def test_adding_trace(self):
         from .views import add_trace
@@ -65,4 +83,4 @@ class TestRESTTrace(TestBase):
         request.params = mock_trace
         rest = RESTTrace(request)
         resp = rest.post()
-        print resp
+        # print resp
