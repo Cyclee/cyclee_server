@@ -55,9 +55,8 @@ class User(Base):
     age = Column(Integer)
     gender = Column(String)
 
-    devices = relationship('Device', backref='owner')
-    rides = relationship('Ride', backref='owner')
-    traces = relationship('Trace', backref='owner')
+    devices = relationship('Device', backref='user')
+    rides = relationship('Ride', backref='user')
 
 
 class Device(Base, ResourceMixin):
