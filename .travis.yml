@@ -7,5 +7,5 @@ before_script:
   - psql -d cyclee_test -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
   - psql -d cyclee_test -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
 install:
-  - "apt-get install postgresql postgis postgresql-9.1-postgis libc6 libpq5"
+  - "sudo apt-get install postgresql postgis postgresql-9.1-postgis libc6 libpq5"
 script: "python setup.py test"
