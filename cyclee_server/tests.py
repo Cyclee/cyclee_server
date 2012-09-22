@@ -1,17 +1,14 @@
 import unittest
-
-
 from pyramid import testing
 
 from cyclee_server.scripts import (
-    load_database,
-    clear_database,
     load_fixtures
 )
 
 from .models import (
     DBSession,
     Base,
+    Device,
     Ride,
     Trace
 )
@@ -35,6 +32,11 @@ class TestBase(unittest.TestCase):
         Base.metadata.drop_all(self.engine)
         testing.tearDown()
 
+mock_device = {
+    'type': 'android',
+    'owner_id': 1
+}
+
 mock_ride = {
     'owner_id': 1,
     'time_started': '2007-01-25T12:00:00Z',
@@ -47,6 +49,30 @@ mock_trace = {
     'ride_id': 1,
     'device_timestamp': '2007-01-25T12:00:00Z'
 }
+
+
+class TestAddGetDevice(TestBase):
+
+    def setUp(self):
+        super(TestAddGetDevice, self).setUp()
+
+    def tearDown(self):
+        super(TestAddGetDevice, self).setUp()
+
+    def test_get_all_devices(self):
+        from .views import show_devices
+        req = testing.DummyRequest()
+        devices = show_devices(req)
+        self.assertTrue(isinstance(devices, list))
+        for device in devices:
+            self.assertTrue(isinstance(device, Device))
+
+    def test_add_device(self):
+        from .views import add_device
+        req = testing.DummyRequest()
+        req.json_body = mock_device
+        device = add_device(req)
+        self.assertTrue(isinstance(device, Device))
 
 
 class TestAddGetRide(TestBase):

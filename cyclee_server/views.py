@@ -53,6 +53,14 @@ def show_rides(request):
     return list(session.query(Ride).all())
 
 
+@view_config(route_name='devices',
+             renderer='json',
+             request_method='GET')
+def show_devices(request):
+    session = DBSession()
+    return list(session.query(Device).all())
+
+
 @view_config(route_name='traces',
              renderer='json',
              request_method='POST')
@@ -65,6 +73,13 @@ def add_trace(request):
              request_method='POST')
 def add_ride(request):
     return add_resource(request, Ride, RideSchema)
+
+
+@view_config(route_name='devices',
+             renderer='json',
+             request_method='POST')
+def add_device(request):
+    return add_resource(request, Device, DeviceSchema)
 
 
 class REST(object):
