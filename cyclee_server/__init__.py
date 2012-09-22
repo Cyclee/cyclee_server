@@ -80,5 +80,8 @@ def main(global_config, **settings):
                     renderer='json',
                     request_method='DELETE')
 
+    config.add_route('devices', '/devices')
+    config.add_route('rest-devices', '/devices/{id}')
+
     config.scan()
     return config.make_wsgi_app()

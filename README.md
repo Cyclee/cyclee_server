@@ -4,7 +4,8 @@ cyclee_server README
 Build status
 ------------
 
-"!https://secure.travis-ci.org/Cyclee/cyclee_server.png!":http://travis-ci.org/Cyclee/cyclee_server
+[![Build Status](https://secure.travis-ci.org/Cyclee/cyclee_server.png)](http://travis-ci.org/Cyclee/cyclee_server)
+
 
 Getting Started
 ---------------
