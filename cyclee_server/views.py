@@ -60,6 +60,13 @@ def add_trace(request):
     return add_resource(request, Trace, TraceSchema)
 
 
+@view_config(route_name='rides',
+             renderer='json',
+             request_method='POST')
+def add_ride(request):
+    return add_resource(request, Ride, RideSchema)
+
+
 class REST(object):
 
     resourceType = None
