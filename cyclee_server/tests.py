@@ -9,7 +9,11 @@ from cyclee_server.scripts import (
     load_fixtures
 )
 
-from .models import DBSession, Base
+from .models import (
+    DBSession,
+    Base,
+    Trace
+)
 
 
 class TestBase(unittest.TestCase):
@@ -23,12 +27,11 @@ class TestBase(unittest.TestCase):
 
         DBSession.configure(bind=self.engine)
         Base.metadata.create_all(self.engine)
-        load_database(self.engine)
         load_fixtures('fixtures.yml')
 
     def tearDown(self):
         DBSession.remove()
-        Base.metadata.clear()
+        Base.metadata.drop_all(self.engine)
         testing.tearDown()
 
 mock_ride = {
@@ -39,7 +42,7 @@ mock_ride = {
 
 mock_trace = {
     'geometry': 'POINT(-88.5945861592357 42.9480095987261)',
-    'altitude': 10,
+    'altitude': 20,
     'ride_id': 1,
     'device_timestamp': '2007-01-25T12:00:00Z'
 }
@@ -55,7 +58,6 @@ class TestAddGetTrace(TestBase):
 
     def test_adding_trace(self):
         from .views import add_trace
-        from .models import Trace
         request = testing.DummyRequest()
         request.json_body = mock_trace
         resp = add_trace(request)
@@ -83,13 +85,23 @@ class TestRESTTrace(TestBase):
         request = testing.DummyRequest()
         request.matchdict = {'id': u'1'}
         rest = RESTTrace(request)
-        resp = rest.get()
-        print resp
+        trace = rest.get()
+        self.assertTrue(isinstance(trace, Trace))
 
     def test_post(self):
         from .views import RESTTrace
         request = testing.DummyRequest()
-        request.params = mock_trace
+        request.json_body = mock_trace
+        request.matchdict = {'id': u'1'}
         rest = RESTTrace(request)
         resp = rest.post()
-        # print resp
+        self.assertTrue(isinstance(resp, Trace))
+        self.assertEqual(resp.altitude, 20)
+
+    def test_delete(self):
+        from .views import RESTTrace
+        request = testing.DummyRequest()
+        request.matchdict = {'id': u'1'}
+        handler = RESTTrace(request)
+        resp = handler.delete()
+        self.assertTrue(isinstance(resp, dict))

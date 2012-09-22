@@ -18,7 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
     scoped_session,
-    #relationship,
+    relationship,
     sessionmaker
 )
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -55,12 +55,21 @@ class User(Base):
     age = Column(Integer)
     gender = Column(String)
 
+    devices = relationship('Device', backref='owner')
+    rides = relationship('Ride', backref='owner')
+    traces = relationship('Trace', backref='owner')
+
 
 class Device(Base, ResourceMixin):
     __tablename__ = 'devices'
 
     type = Column(String)
     owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship(
+        'User',
+        cascade='all, delete',
+        primaryjoin='User.id==Device.owner_id'
+    )
 
 
 class Ride(Base, ResourceMixin):
@@ -69,6 +78,11 @@ class Ride(Base, ResourceMixin):
     time_started = Column(DateTime)
     time_ended = Column(DateTime)
     owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship(
+        'User',
+        cascade='all, delete',
+        primaryjoin='User.id==Ride.owner_id'
+    )
 
 
 class Trace(Base, ResourceMixin):
@@ -77,7 +91,12 @@ class Trace(Base, ResourceMixin):
     geometry = GeometryColumn(Point(2))
     altitude = Column(Float)
     device_timestamp = Column(DateTime)  # The time from the device
-    ride_id = Column(Integer, ForeignKey('users.id'))
+    ride_id = Column(Integer, ForeignKey('rides.id'))
+    ride = relationship(
+        'Ride',
+        cascade='all, delete',
+        primaryjoin='Ride.id==Trace.ride_id'
+    )
 
 
 GeometryDDL(Trace.__table__)
