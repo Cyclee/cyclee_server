@@ -1,10 +1,10 @@
 language: python
 python:
-  - "2.7"
+  - 2.7
 before_script:
   - psql -c 'create database cyclee_test;' -U postgres
   - psql -d cyclee_test -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql
   - psql -d cyclee_test -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql
 install:
-  - "sudo apt-get install postgresql postgis postgresql-9.1-postgis libc6 libpq5"
-script: "python setup.py test"
+  - sudo apt-get install postgresql postgis postgresql-9.1-postgis libc6 libpq5
+script: python setup.py test

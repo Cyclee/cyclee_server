@@ -18,6 +18,38 @@ from cyclee_server.schemes import (
 )
 
 
+class REST(object):
+
+    resourceType = None
+    schemaCls = None
+
+    def get_resource(self):
+        resource = self.session.query(
+            self.resourceType).get(self.request.matchdict['id'])
+        if resource is None:
+            raise HTTPNotFound()
+        return resource
+
+    def __init__(self, request):
+        self.request = request
+        self.session = DBSession()
+
+    def get(self):
+        return self.get_resource()
+
+    def post(self):
+        resource = self.get_resource()
+        s = self.schemaCls()
+        vals = s.deserialize(self.request.json_body)
+        for k, v in vals.items():
+            setattr(resource, k, v)
+        return resource
+
+    def delete(self):
+        self.session.delete(self.get_resource())
+        return {'okay': True}
+
+
 def add_resource(request, model, schema_cls):
     session = DBSession()
     try:
@@ -80,38 +112,6 @@ def add_ride(request):
              request_method='POST')
 def add_device(request):
     return add_resource(request, Device, DeviceSchema)
-
-
-class REST(object):
-
-    resourceType = None
-    schemaCls = None
-
-    def get_resource(self):
-        resource = self.session.query(
-            self.resourceType).get(self.request.matchdict['id'])
-        if resource is None:
-            raise HTTPNotFound()
-        return resource
-
-    def __init__(self, request):
-        self.request = request
-        self.session = DBSession()
-
-    def get(self):
-        return self.get_resource()
-
-    def post(self):
-        resource = self.get_resource()
-        s = self.schemaCls()
-        vals = s.deserialize(self.request.json_body)
-        for k, v in vals.items():
-            setattr(resource, k, v)
-        return resource
-
-    def delete(self):
-        self.session.delete(self.get_resource())
-        return {'okay': True}
 
 
 @view_defaults(route_name='rest-trace')

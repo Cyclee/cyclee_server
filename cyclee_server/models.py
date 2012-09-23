@@ -33,6 +33,10 @@ DBSession = scoped_session(
 Base = declarative_base()
 
 
+def groupfinder(userid, request):
+    pass
+
+
 class ResourceMixin(object):
     id = Column(Integer, primary_key=True)
     date_created = Column(DateTime, default=func.now())

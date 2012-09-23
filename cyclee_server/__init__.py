@@ -5,8 +5,16 @@ from pyramid.renderers import JSON
 from sqlalchemy import engine_from_config
 from geoalchemy.postgis import PGPersistentSpatialElement
 
-from cyclee_server.models import DBSession, Base
-from cyclee_server.views import RESTTrace, RESTRide
+from cyclee_server.models import DBSession, Base, groupfinder
+
+from cyclee_server.views import (
+    RESTTrace,
+    RESTRide,
+    RESTDevice
+)
+
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 
 
 # FIX ME, find a better place for the adapter's for the JSON renderer
@@ -39,9 +47,21 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
-    config = Configurator(settings=settings)
+
+    authentication = AuthTktAuthenticationPolicy(
+        settings.get('secret_key'),
+        callback=groupfinder
+    )
+    authorization = ACLAuthorizationPolicy()
+
+    config = Configurator(
+        settings=settings,
+        authentication_policy=authentication,
+        authorization_policy=authorization
+    )
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_renderer('json', json_renderer)
+    config.scan()
 
     config.add_route('home', '/')
 
@@ -83,5 +103,18 @@ def main(global_config, **settings):
     config.add_route('devices', '/devices')
     config.add_route('rest-devices', '/devices/{id}')
 
-    config.scan()
+    config.add_view(RESTDevice,
+                    attr='get',
+                    renderer='json',
+                    request_method='GET')
+    config.add_view(RESTDevice,
+                    attr='post',
+                    renderer='json',
+                    request_method='POST')
+
+    config.add_view(RESTDevice,
+                    attr='delete',
+                    renderer='json',
+                    request_method='DELETE')
+
     return config.make_wsgi_app()
