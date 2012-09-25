@@ -1,11 +1,27 @@
 from pyramid.view import view_config
 from pyramid.view import view_defaults
-from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy.orm.exc import NoResultFound
+# from pyramid.httpexceptions import HTTPNotFound
 
-import colander
+from wtforms import (
+    Form,
+    TextField,
+    PasswordField,
+    validators
+)
+
+from pyramid.httpexceptions import (
+    HTTPFound,
+)
+
+from pyramid.security import (
+    remember,
+    forget,
+)
 
 from cyclee_server.models import (
     DBSession,
+    User,
     Device,
     Trace,
     Ride
@@ -16,57 +32,59 @@ from cyclee_server.schemes import (
     RideSchema,
     DeviceSchema
 )
+from cyclee_server.helpers import (
+    REST,
+    add_resource,
+    process_form
+)
 
 
-class REST(object):
-
-    resourceType = None
-    schemaCls = None
-
-    def get_resource(self):
-        resource = self.session.query(
-            self.resourceType).get(self.request.matchdict['id'])
-        if resource is None:
-            raise HTTPNotFound()
-        return resource
-
-    def __init__(self, request):
-        self.request = request
-        self.session = DBSession()
-
-    def get(self):
-        return self.get_resource()
-
-    def post(self):
-        resource = self.get_resource()
-        s = self.schemaCls()
-        vals = s.deserialize(self.request.json_body)
-        for k, v in vals.items():
-            setattr(resource, k, v)
-        return resource
-
-    def delete(self):
-        self.session.delete(self.get_resource())
-        return {'okay': True}
+class LoginForm(Form):
+    name = TextField('Username', [validators.Required()])
+    password = PasswordField('Password', [validators.Required()])
 
 
-def add_resource(request, model, schema_cls):
-    session = DBSession()
-    try:
-        schema = schema_cls()
-        vals = schema.deserialize(request.json_body)
-        ints = model(**vals)
-        session.add(ints)
-        session.flush()
-        return ints
-    except colander.Invalid, e:
-        request.response.status = 'Bad request 400'
-        return e.asdict()
-
-
-@view_config(route_name='home', renderer='index.mako')
+@view_config(route_name='index', renderer='index.mako')
 def index(request):
     return {}
+
+
+@view_config(route_name='login', renderer='login.mako')
+def login(request):
+    form = LoginForm(request.POST)
+
+    def post_validate(form):
+        session = DBSession()
+        try:
+            user = session.query(User).filter_by(
+                name=form.name.data,
+                password=User.encode_password(form.password.data)).one()
+            headers = remember(request, user.id)
+            return HTTPFound(
+                headers=headers,
+                location=request.route_url('index'))
+        except NoResultFound, e:
+            return {'form': form, 'errors': [e]}
+
+    return process_form(
+        request,
+        form,
+        post_validate
+    )
+
+
+@view_config(route_name='logout')
+def logout(request):
+    headers = forget(request)
+    return HTTPFound(
+        headers=headers,
+        location=request.route_url('index')
+    )
+
+
+##############################
+# API Views
+##############################
 
 
 @view_config(route_name='traces',
