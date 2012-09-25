@@ -21,7 +21,6 @@ requires = [
     'pyyaml',
     'zope.dottedname',
     'colander',
-    'shapely',
     'psycopg2',
     'GeoAlchemy'
 ]

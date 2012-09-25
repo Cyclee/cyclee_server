@@ -1,6 +1,6 @@
 - class: cyclee_server.models.User
   fields: 
-    name: Ivan Willig
+    name: admin
     email: iwillig@example.com
     password: 21232f297a57a5a743894a0e4a801fc3
     age: 27

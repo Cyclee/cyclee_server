@@ -1,3 +1,4 @@
+import hashlib
 from sqlalchemy import (
     Column,
     Integer,
@@ -61,6 +62,10 @@ class User(Base):
 
     devices = relationship('Device', backref='user')
     rides = relationship('Ride', backref='user')
+
+    @staticmethod
+    def encode_password(passwd_str):
+        return hashlib.md5(passwd_str).hexdigest()
 
 
 class Device(Base, ResourceMixin):
