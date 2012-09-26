@@ -3,16 +3,23 @@
 requirejs.config({
 
     shim: {
-        'underscore': {exports: '_'},
-        'backbone'  : {
-            deps: ['underscore', 'jquery'],
+        'libs/underscore': {exports: '_'},
+        'libs/jquery.mobile': {
+            deps: ['jquery'],
+        },
+        'libs/backbone'  : {
+            deps: ['libs/underscore', 'jquery'],
             exports: 'Backbone'
         }
     }
 
 });
 
-define(['jquery', 'Trace', 'Traces'], function ($, Trace, Traces) {
+define([
+    'jquery',
+    'libs/jquery.mobile',
+    'Trace',
+    'Traces'], function ($, Trace, Traces) {
     'use strict';
 
     $(function () {

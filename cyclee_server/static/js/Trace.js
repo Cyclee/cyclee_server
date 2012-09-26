@@ -1,6 +1,6 @@
 /*global define: true */
 
-define(['backbone'], function (Backbone) {
+define(['libs/backbone'], function (Backbone) {
     'use strict';
 
     var Trace = Backbone.Model.extend({
