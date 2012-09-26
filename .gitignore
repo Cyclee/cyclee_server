@@ -3,3 +3,4 @@
 *.sqlite
 /cyclee_server.egg-info/
 /setup.cfg
+/WebTest-1.4.0-py2.7.egg/
