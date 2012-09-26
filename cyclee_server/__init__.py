@@ -64,6 +64,7 @@ def main(global_config, **settings):
     config.scan()
 
     config.add_route('index', '/')
+    config.add_route('dashboard', '/dashboard')
     config.add_route('login', '/login')
     config.add_route('logout', 'logout')
 

@@ -49,6 +49,11 @@ def index(request):
     return {}
 
 
+@view_config(route_name='dashboard', renderer='dashboard.mako')
+def dashboard(request):
+    return {}
+
+
 @view_config(route_name='login', renderer='login.mako')
 def login(request):
     form = LoginForm(request.POST)
